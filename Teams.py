@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import webbrowser
-import pyautogui
 import time
 import random
 
@@ -50,3 +49,4 @@ if uploaded_file is not None:
                 st.write(f"Error sending to {name}: {e}")
 
         st.success("Finished sending messages!")
+
