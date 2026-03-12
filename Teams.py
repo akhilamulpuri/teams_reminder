@@ -1,39 +1,52 @@
+import streamlit as st
 import pandas as pd
 import webbrowser
 import pyautogui
 import time
 import random
 
-EXCEL_FILE = r"C:\Users\Akhila.Mulpuri\OneDrive - GEP\Documents\invoices.xlsx"
+st.title("Teams Reminder Sender")
 
-df = pd.read_excel(EXCEL_FILE)
-df.columns = df.columns.str.strip()
+st.write("Upload an Excel file with columns: Name and Email")
 
-for index, row in df.iterrows():
+uploaded_file = st.file_uploader("Upload Excel File", type=["xlsx"])
 
-    name = str(row["Name"])
-    email = str(row["Email"])
+default_message = "The Finance Team has created the Travel Expense Report for your company-paid travel under the title 'IN AP/SME'. Kindly submit the report by the End of the Day."
 
-    message = f"Hi {name},The Finance Team has created the Travel Expense Report for your company-paid travel under the title 'IN AP/SME'.Kindly submit the report by the End of the Day."
+message = st.text_area("Enter Reminder Message", default_message)
 
-    try:
+if uploaded_file is not None:
 
-        # Open chat directly
-        url = f"https://teams.microsoft.com/l/chat/0/0?users={email}"
-        webbrowser.open(url)
+    df = pd.read_excel(uploaded_file)
+    df.columns = df.columns.str.strip()
 
-        # Wait for Teams to open chat
-        time.sleep(8)
+    st.subheader("Preview of Data")
+    st.dataframe(df)
 
-        # Type message
-        pyautogui.write(message, interval=0.02)
-        pyautogui.press("enter")
+    if st.button("Send Teams Messages"):
 
-        print(f"Message sent to {name}")
+        for index, row in df.iterrows():
 
-        time.sleep(random.uniform(5,7))
+            name = str(row["Name"])
+            email = str(row["Email"])
 
-    except Exception as e:
-        print(f"Error sending to {name}: {e}")
+            final_message = f"Hi {name}, {message}"
 
-print("Finished sending messages")
+            try:
+
+                url = f"https://teams.microsoft.com/l/chat/0/0?users={email}"
+                webbrowser.open(url)
+
+                time.sleep(8)
+
+                pyautogui.write(final_message, interval=0.02)
+                pyautogui.press("enter")
+
+                st.write(f"Message sent to {name}")
+
+                time.sleep(random.uniform(5,7))
+
+            except Exception as e:
+                st.write(f"Error sending to {name}: {e}")
+
+        st.success("Finished sending messages!")
